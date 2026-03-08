@@ -82,4 +82,6 @@ volumes:
 5. Cuando necesites terminal en un contenedor: `docker compose exec <servicio> bash`.
 6. Al terminar: `docker compose down`.
 
-Con esta convención puedes **reproducir** cada escenario con un solo `docker compose up -d` y trabajar cómodamente editando en el repo y usando “attach shell” solo cuando haga falta.
+Con esta convención puedes **reproducir** cada escenario con un solo `docker compose up -d` y trabajar cómodamente editando en el repo y usando "attach shell" solo cuando haga falta.
+
+**Nota:** En el **Lab08** (TLS en servicios), los ejercicios de NGINX e inspección TLS usan un directorio en tu home (**`~/tls-web`**) y `docker run` directamente, para mantener los pasos más sencillos. Los archivos se crean en el host y se montan en el contenedor con `-v`. En el Lab10 (Ansible) y en escenarios que tú crees, se usa la convención anterior: carpeta `docker/<escenario>/` y Docker Compose.
