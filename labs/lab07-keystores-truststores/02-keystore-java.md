@@ -96,6 +96,10 @@ Si la salida indica `server.crt: OK`, confirma que el sistema reconoce nuestra a
 
 Ahora intenta verificar el certificado del servidor utilizando OpenSSL.
 
+> Importante: **es normal que falle** si no proporcionas el certificado de la CA intermedia.  
+> El almacén del sistema suele contener la **CA raíz**, pero el certificado `server.crt` está firmado por la **CA intermedia**.  
+> Con `-untrusted` le indicas a OpenSSL cuál es el certificado intermedio para que pueda construir la cadena (root → intermedia → servidor).
+
 ```bash id="dsmn4s"
 openssl verify \
   -CAfile /etc/ssl/certs/ca-certificates.crt \
