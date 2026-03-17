@@ -6,6 +6,14 @@ El objetivo es comparar el flujo de trabajo con `openssl` y comprender cómo tra
 
 ---
 
+> **Nota sobre instalación**  
+> Si al ejecutar `certtool` obtienes un error de comando no encontrado, instala el paquete correspondiente a GnuTLS en tu distribución.  
+> - En Debian/Ubuntu: `sudo apt install gnutls-bin`  
+> - En Fedora/RHEL/CentOS: `sudo dnf install gnutls-utils` (o `yum install gnutls-utils`)  
+> - En Arch/Manjaro: `sudo pacman -S gnutls`
+
+---
+
 ### 1. Generar una clave privada con certtool
 
 1. Crea un directorio de trabajo:
