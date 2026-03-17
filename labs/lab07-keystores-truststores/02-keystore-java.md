@@ -61,15 +61,27 @@ Esto indica que el certificado raíz ha sido incorporado al almacén de confianz
 
 ### Paso 3 — Verificar que el certificado aparece en el almacén
 
-Busca el certificado recién añadido dentro del almacén del sistema.
+El almacén consolidado de certificados de confianza del sistema se encuentra en:
 
-```bash id="qpxlfr"
-grep -R "Training Root CA" /etc/ssl/certs
+```bash
+/etc/ssl/certs/ca-certificates.crt
 ```
 
-Debería aparecer una coincidencia que indique que el certificado forma parte del almacén de confianza.
+Busca tu autoridad certificadora dentro de este archivo:
 
-Esto confirma que el sistema reconoce nuestra autoridad certificadora.
+```bash id="qpxlfr"
+grep "Training Root CA" /etc/ssl/certs/ca-certificates.crt
+```
+
+Si aparece una coincidencia, el certificado ha sido añadido correctamente al almacén de confianza.
+
+También puedes verificarlo utilizando OpenSSL contra ese almacén:
+
+```bash
+openssl verify -CAfile /etc/ssl/certs/ca-certificates.crt ~/pki-labs/web-server/server.crt
+```
+
+Si la salida indica `server.crt: OK`, confirma que el sistema reconoce nuestra autoridad certificadora y puede validar certificados emitidos por ella.
 
 ---
 
