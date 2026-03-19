@@ -29,7 +29,7 @@ cd intermediate
 Ahora crea la misma estructura de directorios utilizada anteriormente.
 
 ```bash
-mkdir certs csr newcerts private
+mkdir certs crl csr newcerts private
 touch index.txt
 echo 2000 > serial
 ```
@@ -44,6 +44,7 @@ Deberías ver algo similar a:
 
 ```
 certs
+crl
 csr
 newcerts
 private
@@ -51,11 +52,68 @@ index.txt
 serial
 ```
 
-Esta estructura permitirá gestionar certificados emitidos por la CA intermedia.
+Esta estructura permitirá gestionar certificados emitidos por la CA intermedia y sus listas de revocación.
 
 ---
 
-### Paso 2 — Generar la clave privada de la CA intermedia
+### Paso 2 — Crear el archivo de configuración de la CA intermedia
+
+Al igual que la CA raíz tiene `openssl-ca.cnf`, la intermedia necesita su propio
+archivo de configuración para poder firmar certificados y generar CRLs.
+
+Vuelve al directorio raíz de la PKI:
+
+```bash
+cd ~/pki-ca
+```
+
+Crea el archivo `intermediate/openssl-intermediate.cnf`:
+
+```bash
+cat > intermediate/openssl-intermediate.cnf <<'EOF'
+[ ca ]
+default_ca = CA_default
+
+[ CA_default ]
+dir               = ./intermediate
+certs             = $dir/certs
+crl_dir           = $dir/crl
+database          = $dir/index.txt
+new_certs_dir     = $dir/newcerts
+certificate       = $dir/intermediate.crt
+serial            = $dir/serial
+private_key       = $dir/private/intermediate.key
+default_days      = 365
+default_crl_days  = 30
+default_md        = sha256
+policy            = policy_any
+
+[ policy_any ]
+countryName             = optional
+stateOrProvinceName     = optional
+organizationName        = optional
+commonName              = supplied
+EOF
+```
+
+> Este archivo se ejecutará siempre desde `~/pki-ca`, por lo que `dir = ./intermediate`
+> apunta correctamente a los directorios de la CA intermedia.
+
+Comprueba que se ha creado:
+
+```bash
+ls intermediate/openssl-intermediate.cnf
+```
+
+---
+
+### Paso 3 — Generar la clave privada de la CA intermedia
+
+Sitúate dentro del directorio de la intermedia:
+
+```bash
+cd ~/pki-ca/intermediate
+```
 
 Genera la clave privada que utilizará la autoridad intermedia.
 
@@ -79,7 +137,7 @@ Esta clave será utilizada para firmar certificados emitidos por la autoridad in
 
 ---
 
-### Paso 3 — Crear la solicitud de certificado de la CA intermedia
+### Paso 4 — Crear la solicitud de certificado de la CA intermedia
 
 La autoridad intermedia necesitará un certificado firmado por la autoridad raíz.
 
@@ -113,7 +171,7 @@ intermediate.csr
 
 ---
 
-### Paso 4 — Firmar la CA intermedia con la autoridad raíz
+### Paso 5 — Firmar la CA intermedia con la autoridad raíz
 
 Vuelve al directorio de la autoridad raíz.
 
@@ -166,7 +224,7 @@ intermediate.crt
 
 ---
 
-### Paso 5 — Verificar la relación entre la CA raíz y la CA intermedia
+### Paso 6 — Verificar la relación entre la CA raíz y la CA intermedia
 
 Verifica el certificado de la autoridad intermedia utilizando el certificado raíz.
 
