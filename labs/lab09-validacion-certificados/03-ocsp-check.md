@@ -44,21 +44,30 @@ Este archivo es utilizado por OpenSSL para responder consultas OCSP.
 
 ### Paso 2 — Iniciar un servidor OCSP
 
+El servidor OCSP debe usar la base de datos (`index.txt`) y las credenciales
+de la **CA que firmó los certificados** que se van a consultar.
+Como nuestros certificados de servidor los firma la CA intermedia,
+usaremos sus ficheros.
+
 Inicia un servidor OCSP utilizando OpenSSL.
 
 ```bash id="bhqv1q"
 openssl ocsp \
--index index.txt \
--port 9999 \
--rsigner ca.crt \
--rkey private/ca.key \
--CA ca.crt \
--text
+  -index intermediate/index.txt \
+  -port 9999 \
+  -rsigner intermediate/intermediate.crt \
+  -rkey intermediate/private/intermediate.key \
+  -CA intermediate/intermediate.crt \
+  -text
 ```
 
 El proceso quedará ejecutándose en primer plano.
 
-El servidor OCSP responderá consultas sobre certificados emitidos por la CA.
+El servidor OCSP responderá consultas sobre certificados emitidos por la CA intermedia.
+
+> Si usases el `index.txt` y las credenciales de la CA raíz, el servidor
+> OCSP respondería `unknown` para cualquier certificado firmado por la
+> intermedia, porque la raíz no los tiene en su base de datos.
 
 ---
 
@@ -78,14 +87,24 @@ Ahora realizaremos una consulta OCSP sobre el certificado emitido anteriormente.
 
 ### Paso 4 — Consultar el estado del certificado
 
-Ejecuta el siguiente comando para consultar el estado del certificado del servidor.
+El parámetro `-issuer` debe apuntar al certificado de la CA que **emitió** el
+certificado que estamos consultando (la intermedia).
+
+Para verificar la firma de la respuesta OCSP necesitamos la cadena completa
+de confianza. Crea un fichero con la cadena CA raíz + intermedia:
+
+```bash id="chain-file"
+cat ca.crt intermediate/intermediate.crt > ca-chain.crt
+```
+
+Ejecuta la consulta OCSP:
 
 ```bash id="f0t0vx"
 openssl ocsp \
--issuer ca.crt \
--cert ~/pki-labs/web-server/server.crt \
--url http://localhost:9999 \
--CAfile ca.crt
+  -issuer intermediate/intermediate.crt \
+  -cert ~/pki-labs/web-server/server.crt \
+  -url http://localhost:9999 \
+  -CAfile ca-chain.crt
 ```
 
 La salida mostrará algo similar a:
