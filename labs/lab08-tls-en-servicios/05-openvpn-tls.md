@@ -153,13 +153,21 @@ Inicia el cliente OpenVPN y verifica que la conexión se establece correctamente
 
 ### 5. Verificar la cadena de certificados
 
-Utiliza `openssl` para inspeccionar el certificado presentado por el servidor OpenVPN:
+Utiliza `openssl` para inspeccionar la cadena y el certificado del servidor OpenVPN.
 
 ```bash
-openssl s_client -connect vpn.lab.local:1194 -starttls none
+openssl s_client -connect vpn.lab.local:1194 -showcerts
 ```
 
-> Nota: según la configuración, puede ser necesario adaptar el comando o utilizar herramientas específicas de OpenVPN para depurar la conexión.
+> Importante:
+> - `-starttls none` no es una opción válida en muchas versiones de OpenSSL.
+> - El comando `openssl s_client` aplica cuando OpenVPN está configurado sobre **TCP**.
+> - Si tu OpenVPN usa **UDP** (caso habitual), valida certificado y cadena con:
+>
+> ```bash
+> openssl x509 -in vpn-server.crt -noout -text
+> openssl verify -CAfile ca.crt vpn-server.crt
+> ```
 
 Comprueba:
 
